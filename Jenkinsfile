@@ -1,27 +1,37 @@
 pipeline {
+
     agent any
 
     stages {
-        stage('Checkout') {
+
+        stage('Clone') {
             steps {
-                checkout scm
+                git 'https://github.com/madhusudhan58/website-project.git'
             }
         }
 
-        stage('Build Docker') {
+        stage('Build') {
             steps {
-                bat 'docker build -t website-project .'
+                bat 'docker build -t website-project:v1 .'
             }
         }
 
-        stage('Run Container') {
+        stage('Push') {
+            steps {
+                bat 'docker push madhu58/website-project:v1'
+            }
+        }
+
+        stage('Deploy') {
             steps {
                 bat '''
-                docker stop website
-                docker rm website
-                docker run -d -p 8081:80 --name website website-project
+                docker stop website || exit 0
+                docker rm website || exit 0
+                docker run -d --name website -p 8082:80 YOUR_DOCKER_USERNAME/website-project:v1
                 '''
             }
         }
+
     }
+
 }
