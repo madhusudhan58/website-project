@@ -2,6 +2,11 @@ pipeline {
     agent any
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
 
         stage('Build Docker') {
             steps {
@@ -11,9 +16,12 @@ pipeline {
 
         stage('Run Container') {
             steps {
-                bat 'docker run -d -p 8081:80 --name website website-project'
+                bat '''
+                docker stop website
+                docker rm website
+                docker run -d -p 8081:80 --name website website-project
+                '''
             }
         }
-
     }
 }
